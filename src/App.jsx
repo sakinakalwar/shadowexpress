@@ -1,14 +1,25 @@
-import { useState } from 'react'
-import { Routes, Route } from 'react-router'
-import Navbar from "./Pages/Navbar"
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Home from './pages/Home'
+import About from './pages/About'
+import Services from './pages/Services'
+import Team from './pages/Team'
+import FindJobStatus from './pages/FindJobStatus'
+import ApplyNow from './pages/ApplyNow'
+import Contact from './pages/Contact'
+
 function App() {
   return (
-    <>
-    <Routes>
-      <Route path='/' element={<Navbar/>}/>
-    </Routes>
-    </>
-  )
-}
-
-export default App
+    <BrowserRouter>
+      <Navbar />
+      <Routes>
+        <Route path="/"            element={<Home />} />
+        {/* <Route path="/about"       element={<About />} />
+        <Route path="/services"    element={<Services />} />
+        <Route path="/team"        element={<Team />} />
+        <Route path="/job-status"  element={<FindJobStatus />} />
+        <Route path="/apply"       element={<ApplyNow />} />
+        <Route path="/contact"     element={<Contact />} /> */}
+      </Routes>
+    </BrowserRouter>
