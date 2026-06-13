@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const NAV_LINKS = [
-  { label: "Home", href: "#" },
-  { label: "About Us", href: "/about" },
-  { label: "Services", href: "#services" },
-  { label: "Team", href: "#team" },
-  { label: "Find Job Status", href: "#job-status" },
-  { label: "Apply Now", href: "#apply" },
-  { label: "Contact Us", href: "#contact" },
+  { label: "Home",             to: "/"                },
+  { label: "About Us",         to: "/about"           },
+  { label: "Services",         to: "/services"        },
+  { label: "Team",             to: "/team"            },
+  { label: "Find Job Status",  to: "/find-job-status" },
+  { label: "Apply Now",        to: "/apply"           },
+  { label: "Contact Us",       to: "/contact"         },
 ];
 
 function TruckIcon() {
@@ -28,8 +29,8 @@ function TruckIcon() {
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("Home");
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -37,8 +38,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
+  const isActive = (to) => location.pathname === to;
+
   return (
-    <header className="w-full font-sans">
+    <header className="w-full font-sans sticky top-0 z-50">
       {/* Top bar */}
       <div className="bg-red-600 text-white text-sm px-4 py-1.5 flex flex-wrap gap-x-6 gap-y-1 items-center">
         <a href="tel:+13433532232" className="flex items-center gap-1.5 hover:text-red-200 transition-colors">
@@ -56,15 +62,12 @@ export default function Navbar() {
       </div>
 
       {/* Main navbar */}
-      <nav
-        className={`bg-white w-full z-50 transition-shadow duration-300 ${
-          scrolled ? "shadow-md" : "shadow-sm"
-        }`}
-      >
+      <nav className={`bg-white w-full transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-sm"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
+
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <TruckIcon />
               <div className="leading-tight">
                 <span className="block text-xl font-black tracking-widest text-gray-900 uppercase" style={{ letterSpacing: "0.15em" }}>
@@ -74,93 +77,58 @@ export default function Navbar() {
                   XPRESS
                 </span>
               </div>
-            </a>
+            </Link>
 
             {/* Desktop nav links */}
-            <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+            <div className="hidden lg:flex items-center gap-1 xl:gap-0.5">
               {NAV_LINKS.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
-                  onClick={() => setActiveLink(link.label)}
-                  className={`px-3 py-2 text-sm font-medium transition-colors duration-150 rounded
-                    ${
-                      activeLink === link.label
-                        ? "text-red-600 font-semibold"
-                        : "text-gray-700 hover:text-red-600"
-                    }
-                  `}
-                >
+                  to={link.to}
+                  className={`px-2.5 py-2 text-sm font-medium transition-colors duration-150 rounded whitespace-nowrap
+                    ${isActive(link.to) ? "text-red-600 font-semibold" : "text-gray-700 hover:text-red-600"}`}>
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
 
             {/* CTA + Hamburger */}
             <div className="flex items-center gap-3">
-              <a
-                href="#quote"
-                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-red-600 text-white text-sm font-bold uppercase tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors rounded"
-              >
+              <Link to="/contact"
+                className="hidden sm:inline-flex items-center px-5 py-2.5 bg-red-600 text-white text-sm font-bold uppercase tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors rounded">
                 Get a Quote
-              </a>
+              </Link>
 
-              {/* Hamburger (mobile/tablet) */}
+              {/* Hamburger */}
               <button
-                onClick={() => setMenuOpen((o) => !o)}
+                onClick={() => setMenuOpen(o => !o)}
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
-                className="lg:hidden flex flex-col justify-center items-center w-10 h-10 gap-[5px] rounded focus:outline-none focus:ring-2 focus:ring-red-600"
-              >
-                <span
-                  className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-                    menuOpen ? "rotate-45 translate-y-[7px]" : ""
-                  }`}
-                />
-                <span
-                  className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-                    menuOpen ? "opacity-0" : ""
-                  }`}
-                />
-                <span
-                  className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${
-                    menuOpen ? "-rotate-45 -translate-y-[7px]" : ""
-                  }`}
-                />
+                className="lg:hidden flex flex-col justify-center items-center w-10 h-10 gap-[5px] rounded focus:outline-none focus:ring-2 focus:ring-red-600">
+                <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
+                <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+                <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`} />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile dropdown menu */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            menuOpen ? "max-h-screen border-t border-gray-100" : "max-h-0"
-          }`}
-        >
+        {/* Mobile dropdown */}
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? "max-h-screen border-t border-gray-100" : "max-h-0"}`}>
           <div className="px-4 py-3 flex flex-col gap-1 bg-white">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
-                onClick={() => {
-                  setActiveLink(link.label);
-                  setMenuOpen(false);
-                }}
+                to={link.to}
                 className={`px-3 py-2.5 text-sm font-medium rounded transition-colors ${
-                  activeLink === link.label
-                    ? "text-red-600 bg-red-50 font-semibold"
-                    : "text-gray-700 hover:text-red-600 hover:bg-gray-50"
-                }`}
-              >
+                  isActive(link.to) ? "text-red-600 bg-red-50 font-semibold" : "text-gray-700 hover:text-red-600 hover:bg-gray-50"
+                }`}>
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#quote"
-              className="mt-2 px-4 py-2.5 bg-red-600 text-white text-sm font-bold uppercase tracking-wide text-center rounded hover:bg-red-700 transition-colors"
-            >
+            <Link to="/contact"
+              className="mt-2 px-4 py-2.5 bg-red-600 text-white text-sm font-bold uppercase tracking-wide text-center rounded hover:bg-red-700 transition-colors">
               Get a Quote
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
