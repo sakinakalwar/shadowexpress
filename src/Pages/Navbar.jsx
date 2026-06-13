@@ -1,4 +1,5 @@
 import React from 'react'
+import { FaPhoneAlt } from "react-icons/fa";
 
 export default function Navbar() {
     return (
@@ -6,7 +7,7 @@ export default function Navbar() {
             <div className='bg-red-500'>
                 <div className='flex'>
                     <div className='flex'>
-                        <div>+1 343 353 2232</div>
+                        <div><FaPhoneAlt /> +1 343 353 2232</div>
                         <div>info@shadowxpress.com</div>
                     </div>
                 </div>
