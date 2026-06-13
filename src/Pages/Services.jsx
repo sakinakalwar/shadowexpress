@@ -3,6 +3,29 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import PageBanner from "../common/PageBanner";
 import BGWorldmap from "../assets/BG-Worldmap-1.png";
+import cons1 from "../assets/cons1.jpg"
+import cons2 from "../assets/cons2.jpg"
+import cons3 from "../assets/con3.avif"
+import cons4 from "../assets/cons4.jpg"
+import cons5 from "../assets/cons5.png"
+import cons6 from "../assets/cons6.jpg"
+import cons7 from "../assets/cons7.jpg"
+import cons8 from "../assets/cons8.jpg"
+import cons9 from "../assets/cons9.jpeg"
+import conss9 from "../assets/conss9.jpg"
+import cons10 from "../assets/cons10.jpg"
+import cons11 from "../assets/cons11.jpg"
+import conss12 from "../assets/cons12.webp"
+import cons12 from "../assets/conss12.webp"
+import cons13 from "../assets/cons13.jpg"
+import con13 from "../assets/con13.jpg"
+import cons14 from "../assets/cons14.jpg"
+import cons15 from "../assets/cons15.avif"
+import cons16 from "../assets/cons16.jpeg"
+import cons17 from "../assets/cons17.jpg"
+import cons18 from "../assets/cons1.jpg"
+import cons19 from "../assets/cons1.jpg"
+import cons20 from "../assets/cons1.jpg"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -15,24 +38,24 @@ const IMG_WAREHOUSE = "https://shadowxpress.com/wp-content/uploads/2025/06/logis
 const IMG_TEAM      = "https://shadowxpress.com/wp-content/uploads/2025/06/employees-consult-while-working-in-the-warehouse.jpg";
 
 const jobs = [
-  { title: "Construction",     salary: "$6,488", img: IMG_TRUCK     },
-  { title: "Engineering",      salary: "$6,243", img: IMG_WAREHOUSE  },
-  { title: "HTV Driver",       salary: "$4,550", img: IMG_TRUCK     },
-  { title: "LTV Driver",       salary: "$3,282", img: IMG_TRUCK     },
-  { title: "Security Guard",   salary: "$3,250", img: IMG_WAREHOUSE  },
-  { title: "Packing",          salary: "$2,823", img: IMG_TEAM      },
-  { title: "Office Boy",       salary: "$2,850", img: IMG_TEAM      },
-  { title: "Factory Worker",   salary: "$2,950", img: IMG_TEAM      },
-  { title: "Warehouse Worker", salary: "$3,280", img: IMG_WAREHOUSE  },
-  { title: "Sales Man",        salary: "$3,350", img: IMG_TEAM      },
-  { title: "Delivery Person",  salary: "$3,373", img: IMG_TRUCK     },
-  { title: "Housekeeping",     salary: "$3,073", img: IMG_TEAM      },
-  { title: "Plumber",          salary: "$3,780", img: IMG_WAREHOUSE  },
-  { title: "Electrician",      salary: "$3,850", img: IMG_PLANE     },
-  { title: "Farm Worker",      salary: "$2,750", img: IMG_PLANE     },
-  { title: "Cook",             salary: "$3,173", img: IMG_TEAM      },
-  { title: "Painter",          salary: "$3,073", img: IMG_PLANE     },
-  { title: "Carpenter",        salary: "$3,475", img: IMG_WAREHOUSE  },
+  { title: "Construction",     salary: "$6,488", img: cons1    },
+  { title: "Engineering",      salary: "$6,243", img: cons2  },
+  { title: "HTV Driver",       salary: "$4,550", img: cons3     },
+  { title: "LTV Driver",       salary: "$3,282", img: cons4  },
+  { title: "Security Guard",   salary: "$3,250", img: cons5},
+  { title: "Packing",          salary: "$2,823", img: cons9 },
+  { title: "Office Boy",       salary: "$2,850", img: cons6  },
+  { title: "Factory Worker",   salary: "$2,950", img: cons8      },
+  { title: "Warehouse Worker", salary: "$3,280", img: conss9},
+  { title: "Sales Man",        salary: "$3,350", img: cons11},
+  { title: "Delivery Person",  salary: "$3,373", img: conss12},
+  { title: "Housekeeping",     salary: "$3,073", img: cons12},
+  { title: "Plumber",          salary: "$3,780", img: con13},
+  { title: "Electrician",      salary: "$3,850", img: cons13 },
+  { title: "Farm Worker",      salary: "$2,750", img: cons14},
+  { title: "Cook",             salary: "$3,173", img: cons15},
+  { title: "Painter",          salary: "$3,073", img:  cons16 },
+  { title: "Carpenter",        salary: "$3,475", img: cons17},
 ];
 
 const industries = [

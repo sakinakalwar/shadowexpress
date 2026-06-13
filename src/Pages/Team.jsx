@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import PageBanner from "../common/PageBanner";
+import mang1 from "../assets/mang1.avif"
+import mang2 from "../assets/mang2.avif"
+import mang3 from "../assets/mang3.jpg"
+import mang4 from "../assets/mang4.webp"
+import mang5 from "../assets/mang5.webp"
+import mang6 from "../assets/mang6.webp"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -8,12 +14,12 @@ const fadeUp = {
 };
 
 const team = [
-  { name: "John Maczine",   title: "Chief Executive Officer" },
-  { name: "Rebecca Slavin", title: "Chief Executive Officer" },
-  { name: "Kevin Clayton",  title: "Shipping Director"       },
-  { name: "Jagmohan Singh", title: "HR Manager"              },
-  { name: "Darryl Hatch",   title: "General Manager"         },
-  { name: "Susan Castro",   title: "Legal Officer"           },
+  { name: "John Maczine",   title: "Chief Executive Officer", img:mang1 },
+  { name: "Rebecca Slavin", title: "Chief Executive Officer", img:mang2},
+  { name: "Kevin Clayton",  title: "Shipping Director",      img:mang3},
+  { name: "Jagmohan Singh", title: "HR Manager",             img: mang4},
+  { name: "Darryl Hatch",   title: "General Manager",        img:mang5},
+  { name: "Susan Castro",   title: "Legal Officer",          img:mang6},
 ];
 
 const departments = ["General Inquiry", "HR Department", "Operations", "Logistics", "Finance", "Legal"];
@@ -55,7 +61,7 @@ export default function Team() {
               className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-gray-100">
               <div className="relative overflow-hidden">
                 <img
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=cc0000&color=fff&size=400&font-size=0.33`}
+                  src={member.img}
                   alt={member.name}
                   className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
                 />

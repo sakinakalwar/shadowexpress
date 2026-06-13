@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import AboutUs from '../assets/aboutUs.jpg';
 import AboutUs2 from '../assets/aboutUs.jpg';
+import aboutleft from "../assets/aboutleft.jpg"
+import aboutleft2 from "../assets/aboutleft2.jpg"
 import BGWorldmap from "../assets/BG-Worldmap-1.png";
+import { FaCar } from "react-icons/fa";
+import { FaCarBattery } from "react-icons/fa";
+import { BsBuildings } from "react-icons/bs";
+import { LuShirt } from "react-icons/lu";
 
 // ── Animation Variants ──────────────────────────────────────────
 const fadeUp   = { hidden:{opacity:0,y:40}, visible:(i=0)=>({ opacity:1, y:0, transition:{duration:0.6,delay:i*0.15,ease:'easeOut'} }) };
@@ -31,12 +37,12 @@ const sliderImages = [
 ];
 
 const industries = [
-  { icon:'🚗', title:'Automotive',      front:'We understand the urgency and precision required in the automotive supply chain.',           back:'From parts and accessories to complete vehicle logistics, we ensure fast, secure, and compliant transportation. Our network supports just-in-time delivery.' },
+  { icon:<FaCar />, title:'Automotive',      front:'We understand the urgency and precision required in the automotive supply chain.',           back:'From parts and accessories to complete vehicle logistics, we ensure fast, secure, and compliant transportation. Our network supports just-in-time delivery.' },
   { icon:'💻', title:'Technology',      front:'We specialize in handling high-value, time-sensitive technology shipments with precision.',   back:'From laptops and mobile devices to servers and components, we ensure secure and timely delivery across the globe.' },
   { icon:'🏥', title:'Healthcare',      front:'We provide specialized logistics solutions for the healthcare sector, where timing is critical.', back:'From medical equipment to pharmaceuticals and lab samples, we handle each shipment with strict compliance and care.' },
-  { icon:'⚡', title:'Renewable Energy',front:'We support the renewable energy sector with logistics built for scale & safety.',           back:'From solar panels and wind turbine components to batteries and control systems, we manage the transport of complex, high-value equipment.' },
-  { icon:'🏭', title:'Industrial',      front:'End-to-end logistics solutions for heavy machinery, raw materials, and large-scale equipment.',back:'Our expertise covers both domestic and international freight, including oversized and specialized cargo.' },
-  { icon:'👕', title:'Retail / Fashion',front:'Fast, reliable logistics solutions tailored for the fast-moving world of retail and fashion.', back:'From designer apparel to seasonal stock and accessories, we ensure timely, damage-free delivery to stores and customers alike.' },
+  { icon:<FaCarBattery />, title:'Renewable Energy',front:'We support the renewable energy sector with logistics built for scale & safety.',           back:'From solar panels and wind turbine components to batteries and control systems, we manage the transport of complex, high-value equipment.' },
+  { icon:<BsBuildings />, title:'Industrial',      front:'End-to-end logistics solutions for heavy machinery, raw materials, and large-scale equipment.',back:'Our expertise covers both domestic and international freight, including oversized and specialized cargo.' },
+  { icon:<LuShirt />, title:'Retail / Fashion',front:'Fast, reliable logistics solutions tailored for the fast-moving world of retail and fashion.', back:'From designer apparel to seasonal stock and accessories, we ensure timely, damage-free delivery to stores and customers alike.' },
 ];
 
 // ── Flip Card ───────────────────────────────────────────────────
@@ -55,12 +61,12 @@ function FlipCard({ icon, title, front, back }) {
       >
         {/* Front */}
         <div
-          className="absolute inset-0 bg-gray-800 rounded-lg flex flex-col items-center justify-center p-6 text-center"
+          className="absolute inset-0 bg-[#FFFFFF] rounded-lg flex flex-col items-center justify-center p-6 text-center"
           style={{ backfaceVisibility:'hidden' }}
         >
           <span className="text-4xl mb-4">{icon}</span>
-          <h3 className="text-white font-bold text-lg mb-3">{title}</h3>
-          <p className="text-gray-300 text-sm leading-relaxed">{front}</p>
+          <h3 className=" font-bold text-lg text-[#EA0305] mb-3">{title}</h3>
+          <p className="text-gray-600 text-sm leading-relaxed">{front}</p>
         </div>
         {/* Back */}
         <div
@@ -135,29 +141,26 @@ const About = () => {
             <motion.div
               initial={{opacity:0,scale:0.85}} whileInView={{opacity:1,scale:1}}
               transition={{duration:0.5,delay:0.35}} viewport={{once:true}}
-              className="absolute top-0 left-0 z-10 bg-white rounded-lg p-6 w-48 shadow-md"
+              className="absolute top-4 left-10 z-10 bg-white rounded-lg p-6 w-48 shadow-md"
             >
               <p className="text-5xl font-bold text-red-600">25+</p>
               <p className="text-sm text-red-500 font-semibold mt-2">Years of Experience</p>
             </motion.div>
 
             {/* Main image — top right */}
-            <div className="absolute top-0 left-28 right-0 h-[300px] rounded-lg overflow-hidden">
-              <img src={AboutUs} alt="Logistics containers" className="w-full h-full object-cover" />
+            <div className="absolute top-0 left-0 right-0 h-[400px] rounded-lg overflow-hidden">
+              <img src={aboutleft} alt="Logistics containers" className="w-full h-full object-cover" />
             </div>
 
-            {/* Bottom left image */}
-            <div className="absolute bottom-0 left-0 w-[300px] h-[220px] rounded-lg overflow-hidden">
-              <img src={AboutUs} alt="Logistics port" className="w-full h-full object-cover" />
-            </div>
+            
 
             {/* Bottom right — small overlap */}
             <motion.div
               initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}}
               transition={{duration:0.6,delay:0.3}} viewport={{once:true}}
-              className="absolute bottom-0 right-0 w-[240px] h-[200px] rounded-lg overflow-hidden border-4 border-white shadow-lg"
+              className="absolute bottom-0 right-0 w-[340px] h-[230px] rounded-lg overflow-hidden border-8 border-white shadow-lg"
             >
-              <img src={AboutUs2} alt="Logistics workers" className="w-full h-full object-cover" />
+              <img src={aboutleft2} alt="Logistics workers" className="w-full h-full object-cover" />
             </motion.div>
           </motion.div>
 
@@ -217,7 +220,7 @@ const About = () => {
 
       {/* ── 3. Company In Numbers ── */}
       <section className="relative py-20 overflow-hidden">
-        <img src={AboutUs} alt="bg" className="absolute inset-0 w-full h-full object-cover" />
+        <img src={aboutleft} alt="bg" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -284,7 +287,7 @@ const About = () => {
             </h1>
             <div className="w-16 h-0.5 bg-red-600 mx-auto mt-4" />
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+          <div className="grid grid-cols-1 text-[#EA0305] sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
             {industries.map((ind,i) => (
               <motion.div key={ind.title} variants={fadeUp} custom={i}
                 initial="hidden" whileInView="visible" viewport={{once:true}}>
