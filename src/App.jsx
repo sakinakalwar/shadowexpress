@@ -1,11 +1,12 @@
 import { useState } from 'react'
-
+import { Routes, Route } from 'react-router'
+import Navbar from "./Pages/Navbar"
 function App() {
   return (
     <>
-      <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+    <Routes>
+      <Route path='nav' element={<Navbar/>}/>
+    </Routes>
     </>
   )
 }
