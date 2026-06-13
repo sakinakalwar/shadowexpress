@@ -1,14 +1,14 @@
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import About from './pages/About'
-import Services from './pages/Services'
-import Team from './pages/Team'
-import FindJobStatus from './pages/FindJobStatus'
-import ApplyNow from './pages/ApplyNow'
-import Contact from './pages/Contact'
+// import About from './pages/About'
+// import Services from './pages/Services'
+// import Team from './pages/Team'
+// import FindJobStatus from './pages/FindJobStatus'
+// import ApplyNow from './pages/ApplyNow'
+// import Contact from './pages/Contact'
 
+import { BrowserRouter , Routes, Route} from "react-router-dom";
+import Navbar from "./common/Shadowxpressnavbar";
+import Home from "./component/Home"
 function App() {
   return (
     <BrowserRouter>
