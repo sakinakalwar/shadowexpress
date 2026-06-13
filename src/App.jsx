@@ -23,3 +23,6 @@ function App() {
         <Route path="/contact"     element={<Contact />} /> */}
       </Routes>
     </BrowserRouter>
+  )
+}
+export default App;
