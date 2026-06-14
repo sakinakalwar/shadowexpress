@@ -1,5 +1,7 @@
 import { FaPhoneAlt, FaRegEnvelopeOpen, FaFacebookF, FaTwitter, FaYoutube, FaBehance } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.png"
+
 
 function TruckIcon() {
   return (
@@ -37,20 +39,14 @@ export default function Footer() {
   return (
     <footer>
       {/* Main Footer */}
-      <div className="bg-gray-800 px-6 md:px-16 py-12">
+      <div className="bg-[#F7F7F7] px-6 md:px-16 py-12">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10">
 
           {/* Logo + Text + Social */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <TruckIcon />
-              <div className="leading-tight">
-                <span className="block text-xl font-black tracking-widest text-white uppercase" style={{ letterSpacing: "0.15em" }}>
-                  SHA<span className="text-red-500">D</span>OW
-                </span>
-                <span className="block text-xs font-bold tracking-[0.4em] text-red-500 uppercase -mt-0.5">
-                  XPRESS
-                </span>
+           <div>
+             <img className="w-40 h-20" src={logo} alt="" />
               </div>
             </Link>
             <p className="text-gray-400 leading-7 text-sm mb-6">
@@ -75,7 +71,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h2 className="text-white font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
+            <h2 className="text-[#EA0305] font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
               Quick Links
             </h2>
             <ul className="space-y-3">
@@ -95,7 +91,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h2 className="text-white font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
+            <h2 className="text-[#EA0305] font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
               Services
             </h2>
             <ul className="space-y-3">
@@ -115,7 +111,7 @@ export default function Footer() {
 
           {/* Information */}
           <div>
-            <h2 className="text-white font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
+            <h2 className="text-[#EA0305] font-bold text-lg mb-5 relative pb-3 after:absolute after:bottom-0 after:left-0 after:w-10 after:h-0.5 after:bg-red-600">
               Information
             </h2>
             <div className="space-y-4">

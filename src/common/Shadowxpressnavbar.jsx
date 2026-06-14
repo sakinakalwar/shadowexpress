@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png"
 
 const NAV_LINKS = [
   { label: "Home",             to: "/"                },
@@ -68,15 +69,7 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <TruckIcon />
-              <div className="leading-tight">
-                <span className="block text-xl font-black tracking-widest text-gray-900 uppercase" style={{ letterSpacing: "0.15em" }}>
-                  SHA<span className="text-red-600">D</span>OW
-                </span>
-                <span className="block text-xs font-bold tracking-[0.4em] text-red-600 uppercase -mt-0.5">
-                  XPRESS
-                </span>
-              </div>
+            <img className="w-30 h-14" src={logo} alt="" />
             </Link>
 
             {/* Desktop nav links */}
