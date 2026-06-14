@@ -8,7 +8,8 @@ import Team          from "./Pages/Team";
 import FindJobStatus from "./Pages/FindJobStatus";
 import ApplyNow      from "./Pages/ApplyNow";
 import Contact       from "./Pages/Contact";
-import Admin         from "./Pages/Admin";
+import Admin              from "./Pages/Admin";
+import AppointmentLetter  from "./Pages/AppointmentLetter";
 
 const WA_NUMBER = "12363499090";
 
@@ -31,23 +32,24 @@ function WhatsAppButton() {
 
 function Layout() {
   const { pathname } = useLocation();
-  const isAdmin = pathname.startsWith("/admin");
+  const hideChrome = pathname.startsWith("/admin") || pathname.startsWith("/appointment-letter");
 
   return (
     <>
-      {!isAdmin && <Navbar />}
+      {!hideChrome && <Navbar />}
       <Routes>
-        <Route path="/"                element={<Home />}          />
-        <Route path="/about"           element={<About />}         />
-        <Route path="/services"        element={<Services />}      />
-        <Route path="/team"            element={<Team />}          />
-        <Route path="/find-job-status" element={<FindJobStatus />} />
-        <Route path="/apply"           element={<ApplyNow />}      />
-        <Route path="/contact"         element={<Contact />}       />
-        <Route path="/admin"           element={<Admin />}         />
+        <Route path="/"                                    element={<Home />}               />
+        <Route path="/about"                               element={<About />}              />
+        <Route path="/services"                            element={<Services />}           />
+        <Route path="/team"                                element={<Team />}               />
+        <Route path="/find-job-status"                     element={<FindJobStatus />}      />
+        <Route path="/apply"                               element={<ApplyNow />}           />
+        <Route path="/contact"                             element={<Contact />}            />
+        <Route path="/admin"                               element={<Admin />}              />
+        <Route path="/appointment-letter/:passportNumber"  element={<AppointmentLetter />}  />
       </Routes>
-      {!isAdmin && <Footer />}
-      {!isAdmin && <WhatsAppButton />}
+      {!hideChrome && <Footer />}
+      {!hideChrome && <WhatsAppButton />}
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PageBanner from "../common/PageBanner";
 
 const fadeUp = {
@@ -20,11 +20,11 @@ function fmt(iso) {
 }
 
 export default function FindJobStatus() {
-  const [passport,  setPassport]  = useState("");
-  const [state,     setState]     = useState("idle"); // idle | loading | found | notfound | error
-  const [result,    setResult]    = useState(null);
-  const [errMsg,    setErrMsg]    = useState("");
-  const [imgBroken, setImgBroken] = useState(false);
+  const navigate = useNavigate();
+  const [passport, setPassport] = useState("");
+  const [state,    setState]    = useState("idle");
+  const [result,   setResult]   = useState(null);
+  const [errMsg,   setErrMsg]   = useState("");
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -37,8 +37,12 @@ export default function FindJobStatus() {
       const json = await res.json();
 
       if (res.ok) {
+        if (json.status === "Approved") {
+          // Go directly to the appointment letter page
+          navigate(`/appointment-letter/${encodeURIComponent(passport.trim())}`);
+          return;
+        }
         setResult(json);
-        setImgBroken(false);
         setState("found");
       } else if (res.status === 404) {
         setState("notfound");
@@ -67,7 +71,6 @@ export default function FindJobStatus() {
           </p>
         </motion.div>
 
-        {/* Search card */}
         <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible"
           className="bg-white rounded-xl shadow-md border border-gray-100 p-8 md:p-10">
 
@@ -104,9 +107,7 @@ export default function FindJobStatus() {
               <p className="text-red-700 text-sm font-medium mb-2">
                 No application found for passport <strong className="uppercase">{passport}</strong>.
               </p>
-              <Link to="/apply" className="text-red-600 text-sm font-semibold hover:underline">
-                → Apply Now
-              </Link>
+              <Link to="/apply" className="text-red-600 text-sm font-semibold hover:underline">→ Apply Now</Link>
             </motion.div>
           )}
 
@@ -118,10 +119,9 @@ export default function FindJobStatus() {
             </motion.div>
           )}
 
-          {/* Found */}
+          {/* Pending / Rejected result */}
           {state === "found" && result && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-              {/* Status banner */}
               <div className={`rounded-xl border-2 p-5 mb-4 ${style.pill.replace("text-", "border-").split(" ")[2]} bg-white`}>
                 <div className="flex items-center justify-between flex-wrap gap-3 mb-1">
                   <span className="text-lg font-black text-gray-900">Application Status</span>
@@ -129,14 +129,12 @@ export default function FindJobStatus() {
                     {style.icon} {result.status}
                   </span>
                 </div>
-                {/* Progress bar */}
                 <div className="w-full bg-gray-100 rounded-full h-1.5 mt-3">
                   <div className={`h-1.5 rounded-full transition-all ${style.bar}`}
-                    style={{ width: result.status === "Pending" ? "33%" : result.status === "Approved" ? "100%" : "100%" }} />
+                    style={{ width: result.status === "Pending" ? "33%" : "100%" }} />
                 </div>
               </div>
 
-              {/* Details table */}
               <div className="rounded-xl border border-gray-200 overflow-hidden">
                 <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
                   <h3 className="font-bold text-gray-800 text-sm">Application Details</h3>
@@ -158,41 +156,10 @@ export default function FindJobStatus() {
                 </div>
               </div>
 
-              {/* Admin note */}
               {result.adminNote && (
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-blue-800 text-xs font-semibold uppercase tracking-wide mb-1">Note from Admin</p>
                   <p className="text-blue-700 text-sm">{result.adminNote}</p>
-                </div>
-              )}
-
-              {result.status === "Approved" && (
-                <div className="mt-4 bg-green-50 border border-green-200 rounded-xl overflow-hidden">
-                  {/* Photo + congratulations */}
-                  <div className="flex flex-col sm:flex-row items-center gap-5 p-5">
-                    {result.photoUrl && !imgBroken ? (
-                      <img
-                        src={`http://localhost:5000${result.photoUrl}`}
-                        alt={result.fullName}
-                        onError={() => setImgBroken(true)}
-                        className="w-28 h-28 rounded-xl object-cover border-4 border-white shadow-lg shrink-0"
-                      />
-                    ) : (
-                      <div className="w-28 h-28 rounded-xl bg-green-200 flex items-center justify-center shrink-0 border-4 border-white shadow-lg">
-                        <span className="text-green-700 text-4xl font-black">
-                          {result.fullName?.[0]?.toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-green-800 font-bold text-base mb-1">
-                        🎉 Congratulations, {result.fullName}!
-                      </p>
-                      <p className="text-green-700 text-sm leading-relaxed">
-                        Your application for <strong>{result.occupation}</strong> has been approved. Our team will contact you at <strong>{result.email}</strong> with the next steps.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               )}
             </motion.div>
@@ -205,7 +172,6 @@ export default function FindJobStatus() {
         </p>
       </section>
 
-      {/* Newsletter */}
       <section className="py-14 bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
