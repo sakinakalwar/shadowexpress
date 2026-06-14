@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import AboutUs from '../assets/aboutUs.jpg';
 import AboutUs2 from '../assets/aboutUs.jpg';
 import aboutleft from "../assets/aboutleft.jpg"
-import aboutleft2 from "../assets/aboutleft2.jpg"
+import aboutleft2 from "../assets/aboutLeft2.jpg"
 import BGWorldmap from "../assets/BG-Worldmap-1.png";
 import { FaCar } from "react-icons/fa";
 import { FaCarBattery } from "react-icons/fa";
