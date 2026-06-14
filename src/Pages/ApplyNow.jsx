@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import PageBanner from "../common/PageBanner";
 
 const fadeUp = {
@@ -25,32 +26,58 @@ const occupations = [
   "Electrician","Farm Worker","Cook","Painter","Carpenter","Other",
 ];
 
-const emptyForm = {
-  fullName: "", passportNumber: "", country: "", occupation: "", email: "",
-  photo: null, cv: null,
-};
+const empty = { fullName: "", passportNumber: "", country: "", occupation: "", email: "" };
 
 export default function ApplyNow() {
-  const [form, setForm]         = useState(emptyForm);
-  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm]       = useState(empty);
+  const [photo, setPhoto]     = useState(null);
+  const [cv, setCv]           = useState(null);
   const [photoName, setPhotoName] = useState("");
-  const [cvName, setCvName]       = useState("");
+  const [cvName, setCvName]   = useState("");
+  const [status, setStatus]   = useState("idle"); // idle | loading | success | error | duplicate
+  const [serverMsg, setServerMsg] = useState("");
 
-  const handleFile = (field, setter) => (e) => {
+  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+
+  const handleFile = (setter, nameSetter) => (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setForm(f => ({ ...f, [field]: file }));
-      setter(file.name);
-    }
+    if (file) { setter(file); nameSetter(file.name); }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setForm(emptyForm);
-    setPhotoName("");
-    setCvName("");
-    setTimeout(() => setSubmitted(false), 5000);
+    setStatus("loading");
+    setServerMsg("");
+
+    const data = new FormData();
+    data.append("fullName",       form.fullName);
+    data.append("passportNumber", form.passportNumber);
+    data.append("country",        form.country);
+    data.append("occupation",     form.occupation);
+    data.append("email",          form.email);
+    if (photo) data.append("photo", photo);
+    if (cv)    data.append("cv",    cv);
+
+    try {
+      const res  = await fetch("/api/applications", { method: "POST", body: data });
+      const json = await res.json();
+
+      if (res.status === 201) {
+        setStatus("success");
+        setForm(empty);
+        setPhoto(null); setCv(null);
+        setPhotoName(""); setCvName("");
+      } else if (res.status === 409) {
+        setStatus("duplicate");
+        setServerMsg(json.error);
+      } else {
+        setStatus("error");
+        setServerMsg(json.error ?? "Something went wrong. Please try again.");
+      }
+    } catch {
+      setStatus("error");
+      setServerMsg("Could not reach the server. Make sure the backend is running.");
+    }
   };
 
   return (
@@ -58,21 +85,50 @@ export default function ApplyNow() {
       <PageBanner title="Apply Now" />
 
       <section className="py-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div variants={fadeUp} initial="hidden" animate="visible"
-          className="text-center mb-10">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="text-center mb-10">
           <p className="text-red-600 font-semibold text-sm uppercase tracking-widest mb-3">Join Our Network</p>
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Job Application Form</h2>
           <p className="text-gray-500 text-sm leading-relaxed max-w-lg mx-auto">
-            Fill in your details below and upload your documents. Our team will review your application and get back to you.
+            Fill in your details and upload your documents. Our team will review your application and respond within 3–5 business days.
           </p>
         </motion.div>
 
         <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible"
           className="bg-white rounded-xl shadow-md border border-gray-100 p-8 md:p-10">
 
-          {submitted && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm font-medium text-center">
-              ✓ Your application has been submitted successfully! We will contact you within 3–5 business days.
+          {/* Success */}
+          {status === "success" && (
+            <div className="mb-6 p-5 bg-green-50 border border-green-200 rounded-xl text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-green-700 font-bold text-base mb-1">Application Submitted!</h3>
+              <p className="text-green-600 text-sm mb-3">
+                Your application has been received. Use your passport number to track its status.
+              </p>
+              <Link to="/find-job-status"
+                className="inline-block px-5 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition-colors">
+                Track My Application
+              </Link>
+            </div>
+          )}
+
+          {/* Duplicate */}
+          {status === "duplicate" && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-800 text-sm font-medium">{serverMsg}</p>
+              <Link to="/find-job-status" className="text-red-600 text-sm font-semibold hover:underline mt-1 inline-block">
+                → Check your application status
+              </Link>
+            </div>
+          )}
+
+          {/* Error */}
+          {status === "error" && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{serverMsg}</p>
             </div>
           )}
 
@@ -80,27 +136,25 @@ export default function ApplyNow() {
             {/* Full Name */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name *</label>
-              <input type="text" required value={form.fullName}
-                onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
+              <input type="text" required value={form.fullName} onChange={set("fullName")}
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors" />
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" />
             </div>
 
             {/* Passport Number */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Passport Number *</label>
-              <input type="text" required value={form.passportNumber}
-                onChange={e => setForm(f => ({ ...f, passportNumber: e.target.value }))}
-                placeholder="Enter your passport number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors uppercase" />
+              <input type="text" required value={form.passportNumber} onChange={set("passportNumber")}
+                placeholder="e.g. A1234567"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 uppercase" />
+              <p className="text-gray-400 text-xs mt-1">You will use this to track your application status.</p>
             </div>
 
             {/* Country */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Country *</label>
-              <select required value={form.country}
-                onChange={e => setForm(f => ({ ...f, country: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors bg-white">
+              <select required value={form.country} onChange={set("country")}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white">
                 <option value="">Select your country</option>
                 {countries.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -109,10 +163,9 @@ export default function ApplyNow() {
             {/* Occupation */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Occupation *</label>
-              <select required value={form.occupation}
-                onChange={e => setForm(f => ({ ...f, occupation: e.target.value }))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors bg-white">
-                <option value="">Select your occupation</option>
+              <select required value={form.occupation} onChange={set("occupation")}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 bg-white">
+                <option value="">Select occupation</option>
                 {occupations.map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
@@ -120,65 +173,78 @@ export default function ApplyNow() {
             {/* Email */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email *</label>
-              <input type="email" required value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+              <input type="email" required value={form.email} onChange={set("email")}
                 placeholder="your@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors" />
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" />
             </div>
 
-            {/* Upload Photo */}
+            {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload Image (Passport Size Photo) *</label>
-              <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 transition-colors group">
-                <svg className="w-5 h-5 text-gray-400 group-hover:text-red-500 shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Passport Size Photo * <span className="text-gray-400 font-normal">(JPG/PNG, max 5 MB)</span>
+              </label>
+              <label className={`flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors group ${photo ? "border-green-400 bg-green-50" : "border-gray-300 hover:border-red-400"}`}>
+                <svg className={`w-5 h-5 shrink-0 transition-colors ${photo ? "text-green-500" : "text-gray-400 group-hover:text-red-500"}`}
+                  fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors truncate">
-                  {photoName || "Choose passport photo (JPG, PNG)"}
+                <span className={`text-sm truncate ${photo ? "text-green-700 font-medium" : "text-gray-500"}`}>
+                  {photoName || "Click to upload photo"}
                 </span>
-                <input type="file" required accept="image/*" className="hidden" onChange={handleFile("photo", setPhotoName)} />
+                <input type="file" required accept="image/jpeg,image/png,image/webp" className="hidden"
+                  onChange={handleFile(setPhoto, setPhotoName)} />
               </label>
             </div>
 
-            {/* Upload CV */}
+            {/* CV Upload */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload Experience CV *</label>
-              <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 transition-colors group">
-                <svg className="w-5 h-5 text-gray-400 group-hover:text-red-500 shrink-0 transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Experience CV * <span className="text-gray-400 font-normal">(PDF/DOC/DOCX, max 5 MB)</span>
+              </label>
+              <label className={`flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors group ${cv ? "border-green-400 bg-green-50" : "border-gray-300 hover:border-red-400"}`}>
+                <svg className={`w-5 h-5 shrink-0 transition-colors ${cv ? "text-green-500" : "text-gray-400 group-hover:text-red-500"}`}
+                  fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors truncate">
-                  {cvName || "Choose CV file (PDF, DOC, DOCX)"}
+                <span className={`text-sm truncate ${cv ? "text-green-700 font-medium" : "text-gray-500"}`}>
+                  {cvName || "Click to upload CV"}
                 </span>
-                <input type="file" required accept=".pdf,.doc,.docx" className="hidden" onChange={handleFile("cv", setCvName)} />
+                <input type="file" required accept=".pdf,.doc,.docx" className="hidden"
+                  onChange={handleFile(setCv, setCvName)} />
               </label>
             </div>
 
-            <button type="submit"
-              className="w-full py-4 bg-red-600 text-white font-bold uppercase tracking-widest text-sm rounded-lg hover:bg-red-700 transition-colors mt-2">
-              Submit Application
+            <button type="submit" disabled={status === "loading"}
+              className="w-full py-4 bg-red-600 text-white font-bold uppercase tracking-widest text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {status === "loading" ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  Submitting…
+                </>
+              ) : "Submit Application"}
             </button>
           </form>
         </motion.div>
       </section>
 
-      {/* ── Newsletter ── */}
+      {/* Newsletter */}
       <section className="py-14 bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
-              A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
-              <input type="text" placeholder="Your Name"
-                className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
-              <button type="submit"
-                className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
-                Sign Up
-              </button>
-            </form>
-          </motion.div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
+          <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
+            A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
+            <input type="text" placeholder="Your Name"
+              className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
+            <button type="submit"
+              className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
+              Sign Up
+            </button>
+          </form>
         </div>
       </section>
     </div>

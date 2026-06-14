@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import PageBanner from "../common/PageBanner";
 
 const fadeUp = {
@@ -7,125 +8,218 @@ const fadeUp = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.15, ease: "easeOut" } }),
 };
 
-const mockStatuses = {
-  "A1234567": { name: "John Mitchell",  status: "Approved",    job: "HTV Driver",      date: "2025-06-10" },
-  "B9876543": { name: "Sen Mathew",     status: "Under Review", job: "Warehouse Worker", date: "2025-06-08" },
-  "C5551234": { name: "Richar Swas",    status: "Pending",     job: "Security Guard",  date: "2025-06-05" },
+const STATUS_STYLES = {
+  Pending:  { pill: "bg-yellow-100 text-yellow-700 border-yellow-300", icon: "⏳", bar: "bg-yellow-400" },
+  Approved: { pill: "bg-green-100  text-green-700  border-green-300",  icon: "✅", bar: "bg-green-500"  },
+  Rejected: { pill: "bg-red-100    text-red-700    border-red-300",    icon: "❌", bar: "bg-red-500"    },
 };
 
+function fmt(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
 export default function FindJobStatus() {
-  const [passport, setPassport] = useState("");
-  const [result, setResult]     = useState(null);
-  const [searched, setSearched] = useState(false);
+  const [passport,  setPassport]  = useState("");
+  const [state,     setState]     = useState("idle"); // idle | loading | found | notfound | error
+  const [result,    setResult]    = useState(null);
+  const [errMsg,    setErrMsg]    = useState("");
+  const [imgBroken, setImgBroken] = useState(false);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    const found = mockStatuses[passport.trim().toUpperCase()];
-    setResult(found ?? null);
-    setSearched(true);
+    setState("loading");
+    setResult(null);
+    setErrMsg("");
+
+    try {
+      const res  = await fetch(`/api/applications/status/${encodeURIComponent(passport.trim())}`);
+      const json = await res.json();
+
+      if (res.ok) {
+        setResult(json);
+        setImgBroken(false);
+        setState("found");
+      } else if (res.status === 404) {
+        setState("notfound");
+      } else {
+        setState("error");
+        setErrMsg(json.error ?? "Something went wrong.");
+      }
+    } catch {
+      setState("error");
+      setErrMsg("Could not reach the server. Make sure the backend is running.");
+    }
   };
 
-  const statusColor = {
-    "Approved":     "text-green-600 bg-green-50 border-green-200",
-    "Under Review": "text-yellow-600 bg-yellow-50 border-yellow-200",
-    "Pending":      "text-blue-600  bg-blue-50  border-blue-200",
-  };
+  const style = result ? (STATUS_STYLES[result.status] ?? STATUS_STYLES.Pending) : null;
 
   return (
     <div className="bg-white">
       <PageBanner title="Find Job Status" />
 
-      {/* ── Search Section ── */}
       <section className="py-24 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" viewport={{ once: true }}
-          className="text-center mb-10">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="text-center mb-10">
           <p className="text-red-600 font-semibold text-sm uppercase tracking-widest mb-3">Track Your Application</p>
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Check Your Job Status</h2>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Enter your passport number below to find the current status of your job application.
+            Enter the passport number you used when applying to see your current application status.
           </p>
         </motion.div>
 
+        {/* Search card */}
         <motion.div variants={fadeUp} custom={1} initial="hidden" animate="visible"
           className="bg-white rounded-xl shadow-md border border-gray-100 p-8 md:p-10">
-          <form onSubmit={handleSearch} className="space-y-5">
+
+          <form onSubmit={handleSearch} className="space-y-4 mb-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Enter Passport Number:
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Enter Passport Number:</label>
               <input
                 type="text"
                 required
                 value={passport}
-                onChange={e => { setPassport(e.target.value); setSearched(false); }}
+                onChange={e => { setPassport(e.target.value); setState("idle"); }}
                 placeholder="e.g. A1234567"
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors uppercase"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 uppercase tracking-wider"
               />
-              <p className="text-gray-400 text-xs mt-1.5">Try: A1234567 · B9876543 · C5551234 (demo)</p>
             </div>
-            <button type="submit"
-              className="w-full py-3.5 bg-red-600 text-white font-bold uppercase tracking-widest text-sm rounded-lg hover:bg-red-700 transition-colors">
-              Search Status
+            <button type="submit" disabled={state === "loading"}
+              className="w-full py-3.5 bg-red-600 text-white font-bold uppercase tracking-widest text-sm rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+              {state === "loading" ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  Searching…
+                </>
+              ) : "Search Status"}
             </button>
           </form>
 
-          {/* Result */}
-          {searched && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }} className="mt-6">
-              {result ? (
-                <div className="rounded-lg border border-gray-200 overflow-hidden">
-                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h3 className="font-bold text-gray-900">Application Details</h3>
-                  </div>
-                  <div className="px-6 py-5 space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Applicant Name</span>
-                      <span className="text-gray-900 font-semibold">{result.name}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Applied Position</span>
-                      <span className="text-gray-900 font-semibold">{result.job}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Application Date</span>
-                      <span className="text-gray-900 font-semibold">{result.date}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-500 font-medium">Status</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusColor[result.status] ?? "text-gray-600 bg-gray-50 border-gray-200"}`}>
-                        {result.status}
-                      </span>
-                    </div>
-                  </div>
+          {/* Not found */}
+          {state === "notfound" && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
+              <p className="text-red-700 text-sm font-medium mb-2">
+                No application found for passport <strong className="uppercase">{passport}</strong>.
+              </p>
+              <Link to="/apply" className="text-red-600 text-sm font-semibold hover:underline">
+                → Apply Now
+              </Link>
+            </motion.div>
+          )}
+
+          {/* Server error */}
+          {state === "error" && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-gray-700 text-sm">{errMsg}</p>
+            </motion.div>
+          )}
+
+          {/* Found */}
+          {state === "found" && result && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              {/* Status banner */}
+              <div className={`rounded-xl border-2 p-5 mb-4 ${style.pill.replace("text-", "border-").split(" ")[2]} bg-white`}>
+                <div className="flex items-center justify-between flex-wrap gap-3 mb-1">
+                  <span className="text-lg font-black text-gray-900">Application Status</span>
+                  <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold border ${style.pill}`}>
+                    {style.icon} {result.status}
+                  </span>
                 </div>
-              ) : (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
-                  No application found with passport number <strong>{passport.toUpperCase()}</strong>. Please check the number and try again.
+                {/* Progress bar */}
+                <div className="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                  <div className={`h-1.5 rounded-full transition-all ${style.bar}`}
+                    style={{ width: result.status === "Pending" ? "33%" : result.status === "Approved" ? "100%" : "100%" }} />
+                </div>
+              </div>
+
+              {/* Details table */}
+              <div className="rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+                  <h3 className="font-bold text-gray-800 text-sm">Application Details</h3>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {[
+                    ["Applicant Name",   result.fullName],
+                    ["Passport Number",  result.passportNumber],
+                    ["Country",          result.country],
+                    ["Applied Position", result.occupation],
+                    ["Applied On",       fmt(result.appliedAt)],
+                    ["Last Updated",     fmt(result.updatedAt)],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between items-center px-5 py-3 text-sm">
+                      <span className="text-gray-500 font-medium">{label}</span>
+                      <span className="text-gray-900 font-semibold text-right max-w-[60%]">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Admin note */}
+              {result.adminNote && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-blue-800 text-xs font-semibold uppercase tracking-wide mb-1">Note from Admin</p>
+                  <p className="text-blue-700 text-sm">{result.adminNote}</p>
+                </div>
+              )}
+
+              {result.status === "Approved" && (
+                <div className="mt-4 bg-green-50 border border-green-200 rounded-xl overflow-hidden">
+                  {/* Photo + congratulations */}
+                  <div className="flex flex-col sm:flex-row items-center gap-5 p-5">
+                    {result.photoUrl && !imgBroken ? (
+                      <img
+                        src={`http://localhost:5000${result.photoUrl}`}
+                        alt={result.fullName}
+                        onError={() => setImgBroken(true)}
+                        className="w-28 h-28 rounded-xl object-cover border-4 border-white shadow-lg shrink-0"
+                      />
+                    ) : (
+                      <div className="w-28 h-28 rounded-xl bg-green-200 flex items-center justify-center shrink-0 border-4 border-white shadow-lg">
+                        <span className="text-green-700 text-4xl font-black">
+                          {result.fullName?.[0]?.toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-green-800 font-bold text-base mb-1">
+                        🎉 Congratulations, {result.fullName}!
+                      </p>
+                      <p className="text-green-700 text-sm leading-relaxed">
+                        Your application for <strong>{result.occupation}</strong> has been approved. Our team will contact you at <strong>{result.email}</strong> with the next steps.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </motion.div>
           )}
         </motion.div>
+
+        <p className="text-center text-gray-400 text-xs mt-6">
+          Haven't applied yet?{" "}
+          <Link to="/apply" className="text-red-600 font-semibold hover:underline">Apply Now</Link>
+        </p>
       </section>
 
-      {/* ── Newsletter ── */}
+      {/* Newsletter */}
       <section className="py-14 bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
-              A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
-              <input type="text" placeholder="Your Name"
-                className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
-              <button type="submit"
-                className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
-                Sign Up
-              </button>
-            </form>
-          </motion.div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
+          <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
+            A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
+            <input type="text" placeholder="Your Name"
+              className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
+            <button type="submit"
+              className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
+              Sign Up
+            </button>
+          </form>
         </div>
       </section>
     </div>
