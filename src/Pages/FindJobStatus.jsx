@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import PageBanner from "../common/PageBanner";
+import { BACKEND_URL } from "../config";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -33,7 +34,7 @@ export default function FindJobStatus() {
     setErrMsg("");
 
     try {
-      const res  = await fetch(`/api/applications/status/${encodeURIComponent(passport.trim())}`);
+      const res  = await fetch(`https://shadowexpressbackend-production.up.railway.app/api/applications/status/${encodeURIComponent(passport.trim())}`);
       const json = await res.json();
 
       if (res.ok) {

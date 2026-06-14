@@ -59,7 +59,7 @@ export default function ApplyNow() {
     if (cv)    data.append("cv",    cv);
 
     try {
-      const res  = await fetch("/api/applications", { method: "POST", body: data });
+      const res  = await fetch("https://shadowexpressbackend-production.up.railway.app/api/applications", { method: "POST", body: data });
       const json = await res.json();
 
       if (res.status === 201) {
