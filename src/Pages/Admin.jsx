@@ -40,7 +40,7 @@ function LoginScreen({ onLogin }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/login", {
+      const res = await fetch("https://shadowexpressbackend-production.up.railway.app/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(creds),
@@ -124,7 +124,7 @@ function StatusModal({ app, onClose, onSaved }) {
     setLoading(true);
     setError("");
     try {
-      await apiFetch(`/api/admin/applications/${app.id}/status`, {
+      await apiFetch(`https://shadowexpressbackend-production.up.railway.app/api/admin/applications/${app.id}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status, adminNote: note }),
       });
@@ -233,7 +233,7 @@ export default function Admin() {
       const params = new URLSearchParams();
       if (filterStatus !== "All") params.set("status", filterStatus);
       if (search.trim())          params.set("search", search.trim());
-      const data = await apiFetch(`/api/admin/applications?${params}`);
+      const data = await apiFetch(`https://shadowexpressbackend-production.up.railway.app/api/admin/applications?${params}`);
       setApps(data.applications);
       setCounts(data.counts);
     } catch (err) {
@@ -259,7 +259,7 @@ export default function Admin() {
     if (!window.confirm(`Delete application from ${app.fullName}? This cannot be undone.`)) return;
     setDeleting(app.id);
     try {
-      await apiFetch(`/api/admin/applications/${app.id}`, { method: "DELETE" });
+      await apiFetch(`https://shadowexpressbackend-production.up.railway.app/api/admin/applications/${app.id}`, { method: "DELETE" });
       fetchApps();
       showToast("Application deleted");
     } catch (err) {

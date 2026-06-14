@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { BACKEND_URL } from "../config";
 
 function fmt(iso) {
   if (!iso) return new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -38,7 +39,7 @@ export default function AppointmentLetter() {
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/applications/status/${encodeURIComponent(passportNumber)}`)
+    fetch(`https://shadowexpressbackend-production.up.railway.app/api/applications/status/${encodeURIComponent(passportNumber)}`)
       .then(r => r.json())
       .then(data => {
         if (data.status === "Approved") { setResult(data); setState("ready"); }
@@ -99,7 +100,7 @@ export default function AppointmentLetter() {
     </div>
   );
 
-  const photoSrc = result.photoUrl ? `http://localhost:5000${result.photoUrl}` : null;
+  const photoSrc = result.photoUrl ? `${BACKEND_URL}${result.photoUrl}` : null;
 
   return (
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#f3f4f6", minHeight: "100vh" }}>
