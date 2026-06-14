@@ -115,7 +115,7 @@ export default function Footer() {
               Information
             </h2>
             <div className="space-y-4">
-              <a href="tel:+13433532232" className="flex items-center gap-3 text-gray-400 hover:text-red-500 transition-colors group">
+              <a href="tel:+12363499090" className="flex items-center gap-3 text-gray-400 hover:text-red-500 transition-colors group">
                 <div className="w-9 h-9 bg-red-600/20 group-hover:bg-red-600 rounded-full flex items-center justify-center transition-colors shrink-0">
                   <FaPhoneAlt className="text-red-500 group-hover:text-white w-3.5 h-3.5 transition-colors" />
                 </div>
