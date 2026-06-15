@@ -109,18 +109,17 @@ export default function AppointmentLetter() {
       <div className="no-print" style={{
         position: "sticky", top: 0, zIndex: 50,
         background: "#111827", color: "#fff",
-        padding: "12px 24px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
-      }}>
-        <button onClick={() => navigate(-1)} style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d1d5db", fontSize: "14px", background: "none", border: "none", cursor: "pointer" }}>
+      }}
+      className="flex items-center justify-between px-4 sm:px-6 py-3 gap-3">
+        <button onClick={() => navigate(-1)} style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d1d5db", fontSize: "14px", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
           Back
         </button>
 
-        <span style={{ fontSize: "14px", fontWeight: "600", color: "#e5e7eb", fontFamily: "sans-serif" }}>
+        <span className="hidden sm:block truncate" style={{ fontSize: "14px", fontWeight: "600", color: "#e5e7eb", fontFamily: "sans-serif" }}>
           Appointment Letter — {result.fullName}
         </span>
 
@@ -129,11 +128,11 @@ export default function AppointmentLetter() {
           disabled={downloading}
           style={{
             display: "flex", alignItems: "center", gap: "8px",
-            padding: "8px 20px", background: downloading ? "#9ca3af" : "#dc2626",
+            padding: "8px 16px", background: downloading ? "#9ca3af" : "#dc2626",
             color: "#fff", fontWeight: "700", borderRadius: "8px",
             border: "none", cursor: downloading ? "not-allowed" : "pointer",
             fontSize: "13px", fontFamily: "sans-serif", letterSpacing: "0.05em",
-            textTransform: "uppercase", transition: "background 0.2s"
+            textTransform: "uppercase", transition: "background 0.2s", flexShrink: 0
           }}
         >
           {downloading ? (
@@ -156,10 +155,10 @@ export default function AppointmentLetter() {
       </div>
 
       {/* ── Letter Content (full width) ── */}
-      <div ref={letterRef} style={{ background: "#ffffff", width: "100%", padding: "48px 64px", boxSizing: "border-box" }}>
+      <div ref={letterRef} className="bg-white w-full px-4 py-8 sm:px-10 sm:py-12 lg:px-16 lg:py-12" style={{ boxSizing: "border-box" }}>
 
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6" style={{ borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
           <div>
             <p style={{ fontSize: "14px", marginBottom: "6px" }}>
               Status: <span style={{ color: "#16a34a", fontWeight: "700" }}>Published</span>
@@ -215,7 +214,8 @@ export default function AppointmentLetter() {
           </p>
 
           {/* Job Table */}
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "24px", fontSize: "16px" }}>
+          <div className="overflow-x-auto">
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "24px", fontSize: "16px", minWidth: "480px" }}>
             <tbody>
               {JOB_ROWS(result.occupation).map(([label, value]) => (
                 <tr key={label}>
@@ -225,6 +225,7 @@ export default function AppointmentLetter() {
               ))}
             </tbody>
           </table>
+          </div>
 
           <ul style={{ paddingLeft: "24px", marginBottom: "24px", lineHeight: "1.9", fontSize: "16px" }}>
             <li style={{ marginBottom: "8px" }}>Hospitalization, Life Insurance and Accident Coverage as per applicable Company Policies.</li>
@@ -341,7 +342,7 @@ export default function AppointmentLetter() {
               Biometric Instruction Bill Tax Invoice
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px", padding: "20px", borderBottom: "1px solid #d1d5db", fontSize: "16px" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-gray-300 text-base" style={{ gap: "10px 32px", padding: "20px", fontSize: "16px" }}>
               <p style={{ margin: 0 }}><strong>Invoice No:</strong> GH664510</p>
               <p style={{ margin: 0 }}><strong>Full Name:</strong> {result.fullName?.toUpperCase()}</p>
               <p style={{ margin: 0 }}><strong>Passport No:</strong> {result.passportNumber?.toUpperCase()}</p>
@@ -352,7 +353,8 @@ export default function AppointmentLetter() {
 
             <div style={{ padding: "16px 20px" }}>
               <p style={{ fontWeight: "600", fontSize: "16px", marginBottom: "10px" }}>Payment Voucher:</p>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
+              <div className="overflow-x-auto">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px", minWidth: "420px" }}>
                 <thead>
                   <tr style={{ background: "#f9fafb" }}>
                     {["Fee","Price","Quantity","Grand Total"].map(h => (
@@ -362,14 +364,14 @@ export default function AppointmentLetter() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>185</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>Biometric Fee</td>
                     <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>1</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                   <tr style={{ background: "#f9fafb" }}>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "600" }}>Sub Total</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                   <tr>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "600" }}>Tax Total %1X</td>
@@ -377,10 +379,11 @@ export default function AppointmentLetter() {
                   </tr>
                   <tr style={{ background: "#f9fafb" }}>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "700" }}>Grand Total</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px", fontWeight: "700" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px", fontWeight: "700" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
 
             <div style={{ padding: "4px 20px 14px", fontSize: "15px", lineHeight: "2.1" }}>
@@ -398,7 +401,7 @@ export default function AppointmentLetter() {
       </div>
 
       {/* Bottom download button */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "center", padding: "32px 0 48px" }}>
+      <div className="no-print flex justify-center px-4 py-10">
         <button
           onClick={handleDownload}
           disabled={downloading}
@@ -416,7 +419,8 @@ export default function AppointmentLetter() {
           <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
           </svg>
-          {downloading ? "Generating PDF…" : "Download Appointment Letter PDF"}
+          <span className="hidden sm:inline">{downloading ? "Generating PDF…" : "Download Appointment Letter PDF"}</span>
+          <span className="sm:hidden">{downloading ? "Generating…" : "Download PDF"}</span>
         </button>
       </div>
     </div>

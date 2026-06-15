@@ -33,9 +33,7 @@ const empty = { fullName: "", passportNumber: "", country: "", occupation: "", e
 export default function ApplyNow() {
   const [form, setForm]       = useState(empty);
   const [photo, setPhoto]     = useState(null);
-  const [cv, setCv]           = useState(null);
   const [photoName, setPhotoName] = useState("");
-  const [cvName, setCvName]   = useState("");
   const [status, setStatus]   = useState("idle"); // idle | loading | success | error | duplicate
   const [serverMsg, setServerMsg] = useState("");
 
@@ -58,7 +56,6 @@ export default function ApplyNow() {
     data.append("occupation",     form.occupation);
     data.append("email",          form.email);
     if (photo) data.append("photo", photo);
-    if (cv)    data.append("cv",    cv);
 
     try {
       const res  = await fetch("https://shadowexpressbackend-production.up.railway.app/api/applications", { method: "POST", body: data });
@@ -67,8 +64,8 @@ export default function ApplyNow() {
       if (res.status === 201) {
         setStatus("success");
         setForm(empty);
-        setPhoto(null); setCv(null);
-        setPhotoName(""); setCvName("");
+        setPhoto(null);
+        setPhotoName("");
       } else if (res.status === 409) {
         setStatus("duplicate");
         setServerMsg(json.error);
@@ -195,24 +192,6 @@ export default function ApplyNow() {
                 </span>
                 <input type="file" required accept="image/jpeg,image/png,image/webp" className="hidden"
                   onChange={handleFile(setPhoto, setPhotoName)} />
-              </label>
-            </div>
-
-            {/* CV Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Experience CV * <span className="text-gray-400 font-normal">(PDF/DOC/DOCX, max 5 MB)</span>
-              </label>
-              <label className={`flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed rounded-lg cursor-pointer transition-colors group ${cv ? "border-green-400 bg-green-50" : "border-gray-300 hover:border-red-400"}`}>
-                <svg className={`w-5 h-5 shrink-0 transition-colors ${cv ? "text-green-500" : "text-gray-400 group-hover:text-red-500"}`}
-                  fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className={`text-sm truncate ${cv ? "text-green-700 font-medium" : "text-gray-500"}`}>
-                  {cvName || "Click to upload CV"}
-                </span>
-                <input type="file" required accept=".pdf,.doc,.docx" className="hidden"
-                  onChange={handleFile(setCv, setCvName)} />
               </label>
             </div>
 
