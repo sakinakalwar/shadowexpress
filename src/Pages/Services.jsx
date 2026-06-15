@@ -232,7 +232,7 @@ export default function Services() {
       {/* ── Newsletter ── */}
       <section className="relative py-20 border-t border-gray-200 overflow-hidden">
         <img src={bottombg} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-white/50" />
+        <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <h2 className="text-6xl font-medium text-white mb-3">Subscribe Our Newsletter</h2>
