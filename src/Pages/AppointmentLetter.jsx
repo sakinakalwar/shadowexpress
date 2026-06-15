@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { BACKEND_URL } from "../config";
 
 function fmt(iso) {
   if (!iso) return new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -33,10 +32,11 @@ export default function AppointmentLetter() {
   const navigate = useNavigate();
   const letterRef = useRef(null);
 
-  const [state,      setState]      = useState("loading");
-  const [result,     setResult]     = useState(null);
-  const [imgBroken,  setImgBroken]  = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [state,         setState]         = useState("loading");
+  const [result,        setResult]        = useState(null);
+  const [imgBroken,     setImgBroken]     = useState(false);
+  const [downloading,   setDownloading]   = useState(false);
+  const [downloadError, setDownloadError] = useState("");
 
   useEffect(() => {
     fetch(`https://shadowexpressbackend-production.up.railway.app/api/applications/status/${encodeURIComponent(passportNumber)}`)
@@ -51,6 +51,7 @@ export default function AppointmentLetter() {
   const handleDownload = async () => {
     if (!letterRef.current || downloading) return;
     setDownloading(true);
+    setDownloadError("");
     try {
       const canvas = await html2canvas(letterRef.current, {
         scale: 2,
@@ -58,6 +59,11 @@ export default function AppointmentLetter() {
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
+        imageTimeout: 10000,
+        onclone: (clonedDoc) => {
+          // Strip all stylesheets so html2canvas never encounters oklch() colors
+          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
+        },
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
@@ -80,6 +86,9 @@ export default function AppointmentLetter() {
       }
 
       pdf.save(`Appointment_Letter_${result.passportNumber}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      setDownloadError("Could not generate PDF. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -100,18 +109,25 @@ export default function AppointmentLetter() {
     </div>
   );
 
-  const photoSrc = result.photoUrl ? `${BACKEND_URL}${result.photoUrl}` : null;
+  const photoSrc = result.photoUrl
+    ? `https://shadowexpressbackend-production.up.railway.app${result.photoUrl}`
+    : null;
 
   return (
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#f3f4f6", minHeight: "100vh" }}>
 
       {/* ── Action Bar ── */}
-      <div className="no-print" style={{
+      {downloadError && (
+        <div className="no-print fixed top-0 left-0 right-0 z-[60] bg-red-600 text-white text-sm font-semibold text-center py-2 px-4">
+          {downloadError}
+          <button onClick={() => setDownloadError("")} className="ml-3 underline">Dismiss</button>
+        </div>
+      )}
+      <div className="no-print flex items-center justify-between px-4 sm:px-6 py-3 gap-3" style={{
         position: "sticky", top: 0, zIndex: 50,
         background: "#111827", color: "#fff",
         boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
-      }}
-      className="flex items-center justify-between px-4 sm:px-6 py-3 gap-3">
+      }}>
         <button onClick={() => navigate(-1)} style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d1d5db", fontSize: "14px", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -155,10 +171,10 @@ export default function AppointmentLetter() {
       </div>
 
       {/* ── Letter Content (full width) ── */}
-      <div ref={letterRef} className="bg-white w-full px-4 py-8 sm:px-10 sm:py-12 lg:px-16 lg:py-12" style={{ boxSizing: "border-box" }}>
+      <div ref={letterRef} style={{ backgroundColor: "#ffffff", width: "100%", padding: "48px 64px", boxSizing: "border-box" }}>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6" style={{ borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px", borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
           <div>
             <p style={{ fontSize: "14px", marginBottom: "6px" }}>
               Status: <span style={{ color: "#16a34a", fontWeight: "700" }}>Published</span>
@@ -214,8 +230,7 @@ export default function AppointmentLetter() {
           </p>
 
           {/* Job Table */}
-          <div className="overflow-x-auto">
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "24px", fontSize: "16px", minWidth: "480px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "24px", fontSize: "16px" }}>
             <tbody>
               {JOB_ROWS(result.occupation).map(([label, value]) => (
                 <tr key={label}>
@@ -225,7 +240,6 @@ export default function AppointmentLetter() {
               ))}
             </tbody>
           </table>
-          </div>
 
           <ul style={{ paddingLeft: "24px", marginBottom: "24px", lineHeight: "1.9", fontSize: "16px" }}>
             <li style={{ marginBottom: "8px" }}>Hospitalization, Life Insurance and Accident Coverage as per applicable Company Policies.</li>
@@ -342,7 +356,7 @@ export default function AppointmentLetter() {
               Biometric Instruction Bill Tax Invoice
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-gray-300 text-base" style={{ gap: "10px 32px", padding: "20px", fontSize: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 32px", padding: "20px", borderBottom: "1px solid #d1d5db", fontSize: "16px" }}>
               <p style={{ margin: 0 }}><strong>Invoice No:</strong> GH664510</p>
               <p style={{ margin: 0 }}><strong>Full Name:</strong> {result.fullName?.toUpperCase()}</p>
               <p style={{ margin: 0 }}><strong>Passport No:</strong> {result.passportNumber?.toUpperCase()}</p>
@@ -353,8 +367,7 @@ export default function AppointmentLetter() {
 
             <div style={{ padding: "16px 20px" }}>
               <p style={{ fontWeight: "600", fontSize: "16px", marginBottom: "10px" }}>Payment Voucher:</p>
-              <div className="overflow-x-auto">
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px", minWidth: "420px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "15px" }}>
                 <thead>
                   <tr style={{ background: "#f9fafb" }}>
                     {["Fee","Price","Quantity","Grand Total"].map(h => (
@@ -383,11 +396,10 @@ export default function AppointmentLetter() {
                   </tr>
                 </tbody>
               </table>
-              </div>
             </div>
 
             <div style={{ padding: "4px 20px 14px", fontSize: "15px", lineHeight: "2.1" }}>
-              <p style={{ margin: 0 }}><strong>Payment Status:</strong> Unpaid</p>
+              <p style={{ margin: 0 }}><strong>Payment Status:</strong> {result.paymentStatus ?? "Unpaid"}</p>
               <p style={{ margin: 0 }}><strong>Payment Mode:</strong> CLIENT</p>
             </div>
 

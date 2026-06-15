@@ -277,7 +277,7 @@ export default function Admin() {
     const next = app.paymentStatus === "Paid" ? "Unpaid" : "Paid";
     setTogglingPayment(app.id);
     try {
-      await apiFetch(`ttp://localhost:5000/api/admin/applications/${app.id}/payment`, {
+      await apiFetch(`https://shadowexpressbackend-production.up.railway.app/api/admin/applications/${app.id}/payment`, {
         method: "PATCH",
         body: JSON.stringify({ paymentStatus: next }),
       });
