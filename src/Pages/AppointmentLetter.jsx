@@ -32,10 +32,11 @@ export default function AppointmentLetter() {
   const navigate = useNavigate();
   const letterRef = useRef(null);
 
-  const [state,      setState]      = useState("loading");
-  const [result,     setResult]     = useState(null);
-  const [imgBroken,  setImgBroken]  = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [state,         setState]         = useState("loading");
+  const [result,        setResult]        = useState(null);
+  const [imgBroken,     setImgBroken]     = useState(false);
+  const [downloading,   setDownloading]   = useState(false);
+  const [downloadError, setDownloadError] = useState("");
 
   useEffect(() => {
     fetch(`/api/applications/status/${encodeURIComponent(passportNumber)}`)
@@ -50,6 +51,7 @@ export default function AppointmentLetter() {
   const handleDownload = async () => {
     if (!letterRef.current || downloading) return;
     setDownloading(true);
+    setDownloadError("");
     try {
       const canvas = await html2canvas(letterRef.current, {
         scale: 2,
@@ -57,6 +59,11 @@ export default function AppointmentLetter() {
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
+        imageTimeout: 10000,
+        onclone: (clonedDoc) => {
+          // Strip all stylesheets so html2canvas never encounters oklch() colors
+          clonedDoc.querySelectorAll('link[rel="stylesheet"], style').forEach(el => el.remove());
+        },
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
@@ -79,6 +86,9 @@ export default function AppointmentLetter() {
       }
 
       pdf.save(`Appointment_Letter_${result.passportNumber}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      setDownloadError("Could not generate PDF. Please try again.");
     } finally {
       setDownloading(false);
     }
@@ -99,27 +109,33 @@ export default function AppointmentLetter() {
     </div>
   );
 
-  const photoSrc = result.photoUrl || null;
-
+  // const photoSrc = result.photoUrl ? `${BACKEND_URL}${result.photoUrl}` : null;
+ const photoSrc = result.photoUrl
+    ? `https://shadowexpressbackend-production.up.railway.app${result.photoUrl}`
+    : null;
   return (
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#f3f4f6", minHeight: "100vh" }}>
 
       {/* ── Action Bar ── */}
-      <div className="no-print" style={{
+      {downloadError && (
+        <div className="no-print fixed top-0 left-0 right-0 z-[60] bg-red-600 text-white text-sm font-semibold text-center py-2 px-4">
+          {downloadError}
+          <button onClick={() => setDownloadError("")} className="ml-3 underline">Dismiss</button>
+        </div>
+      )}
+      <div className="no-print flex items-center justify-between px-4 sm:px-6 py-3 gap-3" style={{
         position: "sticky", top: 0, zIndex: 50,
         background: "#111827", color: "#fff",
-        padding: "12px 24px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
       }}>
-        <button onClick={() => navigate(-1)} style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d1d5db", fontSize: "14px", background: "none", border: "none", cursor: "pointer" }}>
+        <button onClick={() => navigate(-1)} style={{ display: "flex", alignItems: "center", gap: "6px", color: "#d1d5db", fontSize: "14px", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
           Back
         </button>
 
-        <span style={{ fontSize: "14px", fontWeight: "600", color: "#e5e7eb", fontFamily: "sans-serif" }}>
+        <span className="hidden sm:block truncate" style={{ fontSize: "14px", fontWeight: "600", color: "#e5e7eb", fontFamily: "sans-serif" }}>
           Appointment Letter — {result.fullName}
         </span>
 
@@ -128,11 +144,11 @@ export default function AppointmentLetter() {
           disabled={downloading}
           style={{
             display: "flex", alignItems: "center", gap: "8px",
-            padding: "8px 20px", background: downloading ? "#9ca3af" : "#dc2626",
+            padding: "8px 16px", background: downloading ? "#9ca3af" : "#dc2626",
             color: "#fff", fontWeight: "700", borderRadius: "8px",
             border: "none", cursor: downloading ? "not-allowed" : "pointer",
             fontSize: "13px", fontFamily: "sans-serif", letterSpacing: "0.05em",
-            textTransform: "uppercase", transition: "background 0.2s"
+            textTransform: "uppercase", transition: "background 0.2s", flexShrink: 0
           }}
         >
           {downloading ? (
@@ -155,10 +171,10 @@ export default function AppointmentLetter() {
       </div>
 
       {/* ── Letter Content (full width) ── */}
-      <div ref={letterRef} style={{ background: "#ffffff", width: "100%", padding: "48px 64px", boxSizing: "border-box" }}>
+      <div ref={letterRef} style={{ backgroundColor: "#ffffff", width: "100%", padding: "48px 64px", boxSizing: "border-box" }}>
 
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "24px", borderBottom: "2px solid #1f2937", paddingBottom: "24px", marginBottom: "24px" }}>
           <div>
             <p style={{ fontSize: "14px", marginBottom: "6px" }}>
               Status: <span style={{ color: "#16a34a", fontWeight: "700" }}>Published</span>
@@ -361,14 +377,14 @@ export default function AppointmentLetter() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>185</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>Biometric Fee</td>
                     <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>1</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                   <tr style={{ background: "#f9fafb" }}>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "600" }}>Sub Total</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                   <tr>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "600" }}>Tax Total %1X</td>
@@ -376,14 +392,14 @@ export default function AppointmentLetter() {
                   </tr>
                   <tr style={{ background: "#f9fafb" }}>
                     <td colSpan={3} style={{ border: "1px solid #d1d5db", padding: "10px 14px", textAlign: "right", fontWeight: "700" }}>Grand Total</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px", fontWeight: "700" }}>SALECTION</td>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px", fontWeight: "700" }}>{result.paymentAmount || "—"}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div style={{ padding: "4px 20px 14px", fontSize: "15px", lineHeight: "2.1" }}>
-              <p style={{ margin: 0 }}><strong>Payment Status:</strong> Unpaid</p>
+              <p style={{ margin: 0 }}><strong>Payment Status:</strong> {result.paymentStatus ?? "Unpaid"}</p>
               <p style={{ margin: 0 }}><strong>Payment Mode:</strong> CLIENT</p>
             </div>
 
@@ -397,7 +413,7 @@ export default function AppointmentLetter() {
       </div>
 
       {/* Bottom download button */}
-      <div className="no-print" style={{ display: "flex", justifyContent: "center", padding: "32px 0 48px" }}>
+      <div className="no-print flex justify-center px-4 py-10">
         <button
           onClick={handleDownload}
           disabled={downloading}
@@ -415,7 +431,8 @@ export default function AppointmentLetter() {
           <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
           </svg>
-          {downloading ? "Generating PDF…" : "Download Appointment Letter PDF"}
+          <span className="hidden sm:inline">{downloading ? "Generating PDF…" : "Download Appointment Letter PDF"}</span>
+          <span className="sm:hidden">{downloading ? "Generating…" : "Download PDF"}</span>
         </button>
       </div>
     </div>

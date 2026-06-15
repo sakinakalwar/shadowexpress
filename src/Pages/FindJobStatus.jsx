@@ -10,6 +10,12 @@ const fadeUp = {
 const bottombg = "https://shadowxpress.com/wp-content/uploads/2025/06/contact-banner.jpg"
 
 
+// const mockStatuses = {
+//   "A1234567": { name: "John Mitchell",  status: "Approved",    job: "HTV Driver",      date: "2025-06-10" },
+//   "B9876543": { name: "Sen Mathew",     status: "Under Review", job: "Warehouse Worker", date: "2025-06-08" },
+//   "C5551234": { name: "Richar Swas",    status: "Pending",     job: "Security Guard",  date: "2025-06-05" },
+// };
+
 const STATUS_STYLES = {
   Pending:  { pill: "bg-yellow-100 text-yellow-700 border-yellow-300", icon: "⏳", bar: "bg-yellow-400" },
   Approved: { pill: "bg-green-100  text-green-700  border-green-300",  icon: "✅", bar: "bg-green-500"  },
@@ -197,8 +203,9 @@ export default function FindJobStatus() {
             </form>
           </motion.div>
         </div>
-      </section> */}
-        <section className="relative py-20 border-t border-gray-200 overflow-hidden">
+      </section>
+      {/* ── Newsletter ── */}
+      <section className="relative py-20 border-t border-gray-200 overflow-hidden">
                     <img src={bottombg} alt="" className="absolute inset-0 w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50" />
                     <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

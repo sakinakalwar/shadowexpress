@@ -29,6 +29,11 @@ const STATUS_PILL = {
   Rejected: "bg-red-100    text-red-700    border border-red-300",
 };
 
+const PAYMENT_PILL = {
+  Paid:   "bg-green-100 text-green-700 border border-green-300",
+  Unpaid: "bg-red-100   text-red-700   border border-red-300",
+};
+
 // ── Login screen ─────────────────────────────────────────────────
 function LoginScreen({ onLogin }) {
   const [creds, setCreds]   = useState({ username: "", password: "" });
@@ -115,10 +120,11 @@ function LoginScreen({ onLogin }) {
 
 // ── Status update modal ──────────────────────────────────────────
 function StatusModal({ app, onClose, onSaved }) {
-  const [status, setStatus]   = useState(app.status);
-  const [note, setNote]       = useState(app.adminNote ?? "");
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [status,        setStatus]        = useState(app.status);
+  const [note,          setNote]          = useState(app.adminNote ?? "");
+  const [paymentAmount, setPaymentAmount] = useState(app.paymentAmount ?? "");
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState("");
 
   const handleSave = async () => {
     setLoading(true);
@@ -126,7 +132,7 @@ function StatusModal({ app, onClose, onSaved }) {
     try {
       await apiFetch(`/api/admin/applications/${app.id}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ status, adminNote: note }),
+        body: JSON.stringify({ status, adminNote: note, paymentAmount }),
       });
       onSaved();
     } catch (err) {
@@ -192,6 +198,17 @@ function StatusModal({ app, onClose, onSaved }) {
             placeholder="e.g. Please bring your documents to our office on Monday…"
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500 resize-none" />
 
+          <label className="block text-sm font-semibold text-gray-700 mt-4 mb-1.5">
+            Payment Amount <span className="text-gray-400 font-normal">(shown on appointment letter)</span>
+          </label>
+          <input
+            type="text"
+            value={paymentAmount}
+            onChange={e => setPaymentAmount(e.target.value)}
+            placeholder="e.g. 500 CAD or $185"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+          />
+
           {error && <p className="text-red-600 text-xs mt-2">{error}</p>}
 
           <div className="flex gap-3 mt-4">
@@ -221,8 +238,9 @@ export default function Admin() {
   const [search,       setSearch]       = useState("");
   const [loading,      setLoading]      = useState(false);
   const [selected,     setSelected]     = useState(null); // app in modal
-  const [deleting,     setDeleting]     = useState(null);
-  const [toast,        setToast]        = useState("");
+  const [deleting,        setDeleting]        = useState(null);
+  const [togglingPayment, setTogglingPayment] = useState(null);
+  const [toast,           setToast]           = useState("");
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
@@ -253,6 +271,23 @@ export default function Admin() {
     setSelected(null);
     fetchApps();
     showToast("Application updated successfully");
+  };
+
+  const handleTogglePayment = async (app) => {
+    const next = app.paymentStatus === "Paid" ? "Unpaid" : "Paid";
+    setTogglingPayment(app.id);
+    try {
+      await apiFetch(`https://shadowexpressbackend-production.up.railway.app/api/admin/applications/${app.id}/payment`, {
+        method: "PATCH",
+        body: JSON.stringify({ paymentStatus: next }),
+      });
+      fetchApps();
+      showToast(`Payment marked as ${next}`);
+    } catch (err) {
+      showToast(`Error: ${err.message}`);
+    } finally {
+      setTogglingPayment(null);
+    }
   };
 
   const handleDelete = async (app) => {
@@ -391,7 +426,7 @@ export default function Admin() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    {["#", "Name", "Passport", "Country", "Occupation", "Applied", "Status", "Actions"].map(h => (
+                    {["#", "Name", "Passport", "Country", "Occupation", "Applied", "Status", "Payment", "Actions"].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide whitespace-nowrap">
                         {h}
                       </th>
@@ -416,6 +451,14 @@ export default function Admin() {
                         <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold ${STATUS_PILL[app.status] ?? STATUS_PILL.Pending}`}>
                           {app.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <button
+                          onClick={() => handleTogglePayment(app)}
+                          disabled={togglingPayment === app.id}
+                          className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-colors disabled:opacity-50 ${PAYMENT_PILL[app.paymentStatus ?? "Unpaid"]}`}>
+                          {togglingPayment === app.id ? "…" : (app.paymentStatus ?? "Unpaid")}
+                        </button>
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
