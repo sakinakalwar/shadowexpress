@@ -8,6 +8,8 @@ const fadeUp = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.1, ease: "easeOut" } }),
 };
 
+const bottombg = "https://shadowxpress.com/wp-content/uploads/2025/06/contact-banner.jpg"
+
 const countries = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Azerbaijan","Bahrain",
   "Bangladesh","Belgium","Brazil","Bulgaria","Cambodia","Canada","Chile","China","Colombia","Croatia",
@@ -82,7 +84,7 @@ export default function ApplyNow() {
 
   return (
     <div className="bg-white">
-      <PageBanner title="Apply Now" />
+      <PageBanner title="Apply Now" bg="https://shadowxpress.com/wp-content/uploads/2025/07/image-of-screen-with-job-application-page-over-blue-background-2G6X51K-1.jpg"/>
 
       <section className="py-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div variants={fadeUp} initial="hidden" animate="visible" className="text-center mb-10">
@@ -230,23 +232,45 @@ export default function ApplyNow() {
         </motion.div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-14 bg-gray-50 border-t border-gray-200">
+      {/* ── Newsletter ── */}
+      {/* <section className="py-14 bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
-          <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
-            A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
-          </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
-            <input type="text" placeholder="Your Name"
-              className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
-            <button type="submit"
-              className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
-              Sign Up
-            </button>
-          </form>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Subscribe Our Newsletter</h2>
+            <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-lg mx-auto">
+              A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
+            </p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
+              <input type="text" placeholder="Your Name"
+                className="flex-1 px-5 py-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500" />
+              <button type="submit"
+                className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
+                Sign Up
+              </button>
+            </form>
+          </motion.div>
         </div>
-      </section>
+      </section> */}
+       <section className="relative py-20 border-t border-gray-200 overflow-hidden">
+                    <img src={bottombg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50" />
+                    <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                      <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                        <h2 className="text-6xl font-medium text-white mb-3">Subscribe Our Newsletter</h2>
+                        <p className="text-white text-lg leading-relaxed mb-6 max-w-lg mx-auto">
+                          A newsletter is a regularly distributed publication, often via email, that contains news, updates, or information related to a specific topic or organization.
+                        </p>
+                        <form className="flex flex-col sm:flex-row max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
+                          <input type="text" placeholder="Your Name"
+                            className="flex-1 px-5 py-3 border bg-white border-red-600 rounded text-sm focus:outline-none focus:border-red-500" />
+                          <button type="submit"
+                            className="px-8 py-3 bg-red-600 text-white font-bold uppercase tracking-wide text-sm rounded hover:bg-red-700 transition-colors">
+                            Sign Up
+                          </button>
+                        </form>
+                      </motion.div>
+                    </div>
+                  </section>
     </div>
   );
 }
