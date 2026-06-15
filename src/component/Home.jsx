@@ -652,7 +652,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import aboutImg from "../assets/aboutUs.jpg";
 import aboutleft from "../assets/aboutleft.jpg"
 import aboutleft2 from "../assets/aboutleft2.jpg"
@@ -713,7 +713,7 @@ const highlights = [
             </svg>
         ),
         title: "Speed You Can Rely On",
-        desc: "Same-day and next-day delivery options to meet your tightest deadlines.",
+        desc: "Same-day and next-day delivery options to meet your deadlines, every time.",
     },
     {
         icon: (
@@ -732,7 +732,7 @@ const highlights = [
             </svg>
         ),
         title: "Affordable Pricing",
-        desc: "Clear, competitive rates with no hidden fees — quality service at the right price.",
+        desc: "No hidden fees — just clear, competitive rates for every delivery.",
     },
 ];
 
@@ -836,6 +836,7 @@ const industries = [
 // ── Sub-components ──────────────────────────────────────────────
 function HeroSlider() {
     const [current, setCurrent] = useState(0);
+    const navigate = useNavigate()
     useEffect(() => {
         const t = setInterval(() => setCurrent(p => (p + 1) % heroSlides.length), 5000);
         return () => clearInterval(t);
@@ -889,12 +890,12 @@ function ServiceCard({ title, desc, img, index }) {
             <div className="absolute bottom-0 left-0 right-0 p-5">
                 <h3 className="text-white font-bold text-lg mb-1">{title}</h3>
                 <p className="text-gray-300 text-sm mb-3 leading-relaxed">{desc}</p>
-                <a href="#contact" className="text-red-400 text-sm font-semibold hover:text-red-300 transition-colors flex items-center gap-1">
+                <Link to="/contact" href="#contact" className="text-red-400 text-sm font-semibold hover:text-red-300 transition-colors flex items-center gap-1">
                     Contact Us
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                </a>
+                </Link>
             </div>
         </motion.div>
     );
@@ -981,46 +982,77 @@ const Home = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="flex flex-wrap gap-4">
-                        <a href="#track"
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-red-600 text-white font-bold uppercase tracking-wide hover:bg-red-700 transition-colors rounded">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                        className="flex flex-nowrap sm-gap-4 gap-3">
+                        <Link to="#track"
+                            className="inline-flex items-center gap-2 px-5 sm:px-6 py-2 text-xs sm:text-base bg-red-600 text-white font-medium uppercase tracking-wide transition-colors">
+                            
                             Track Shipment
-                        </a>
-                        <a href="#job-status"
-                            className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white font-bold uppercase tracking-wide hover:bg-white hover:text-gray-900 transition-colors rounded">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
+                        </Link>
+                        <Link to="/find-job-status"
+                            className="inline-flex items-center gap-2 sm:px-6 px-5 py-2 text-xs sm:text-base bg-[#212121] text-white font-medium uppercase tracking-wide  transition-colors">
+                            
                             Find Job Status
-                        </a>
+                        </Link>
                     </motion.div>
                 </div>
             </section>
 
-            {/* ── 2. Highlights Band ── */}
-            <section className="bg-gray-900">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-700">
-                        {highlights.map((h, i) => (
-                            <motion.div key={h.title} variants={fadeUp} custom={i}
-                                initial="hidden" whileInView="visible" viewport={{ once: true }}
-                                className="flex items-start gap-4 px-8 py-8">
-                                <div className="shrink-0 w-14 h-14 bg-red-600/20 rounded-full flex items-center justify-center">
-                                    {h.icon}
-                                </div>
-                                <div>
-                                    <h3 className="text-white font-bold text-base mb-1">{h.title}</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed">{h.desc}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+           
+            {/* ── 2. Highlights + Track Shipment ── */}
+<section className="relative bg-[#DEDEDE]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            {/* Left: Highlights */}
+            <div className="lg:col-span-7 py-16">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    {highlights.map((h, i) => (
+                        <motion.div key={h.title} variants={fadeUp} custom={i}
+                            initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                            <h3 className="text-[#EA0305] font-medium text-xl mb-3">{h.title}</h3>
+                            <p className="text-gray-600 text-sm leading-relaxed">{h.desc}</p>
+                        </motion.div>
+                    ))}
                 </div>
-            </section>
+            </div>
+
+            {/* Right: Track Your Shipment card (hero me overlap hota hai) */}
+            <div className="lg:col-span-5">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="relative z-20 lg:-mt-20 bg-[#212121] p-8 pb-20  shadow-2xl lg:min-h-[4px]">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
+                        Track Your Shipment
+                    </h2>
+                    <div className="w-full h-0.5 bg-red-600 mb-8" />
+
+                    <form className="flex" onSubmit={e => e.preventDefault()}>
+                        <input
+                            type="text"
+                            placeholder="Track your shipment"
+                            className="flex-1 px-4 py-3 bg-white text-gray-800 text-sm focus:outline-none"
+                        />
+                        <button
+                            type="submit"
+                            className="px-5 bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </button>
+                    </form>
+
+                    <p className="text-white text-sm font-semibold mt-5 leading-relaxed">
+                        Same-day and next-day delivery options to meet your deadlines, every time.
+                    </p>
+                </motion.div>
+            </div>
+
+        </div>
+    </div>
+</section>
 
             {/* ── 3. About Teaser ── */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
