@@ -123,6 +123,7 @@ function StatusModal({ app, onClose, onSaved }) {
   const [status,        setStatus]        = useState(app.status);
   const [note,          setNote]          = useState(app.adminNote ?? "");
   const [paymentAmount, setPaymentAmount] = useState(app.paymentAmount ?? "");
+  const [feeName,       setFeeName]       = useState(app.feeName ?? "");
   const [loading,       setLoading]       = useState(false);
   const [error,         setError]         = useState("");
 
@@ -132,7 +133,7 @@ function StatusModal({ app, onClose, onSaved }) {
     try {
       await apiFetch(`/api/admin/applications/${app.id}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ status, adminNote: note, paymentAmount }),
+        body: JSON.stringify({ status, adminNote: note, paymentAmount, feeName }),
       });
       onSaved();
     } catch (err) {
@@ -206,6 +207,17 @@ function StatusModal({ app, onClose, onSaved }) {
             value={paymentAmount}
             onChange={e => setPaymentAmount(e.target.value)}
             placeholder="e.g. 500 CAD or $185"
+            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
+          />
+
+          <label className="block text-sm font-semibold text-gray-700 mt-4 mb-1.5">
+            Fee Name <span className="text-gray-400 font-normal">(shown as Fee in payment voucher)</span>
+          </label>
+          <input
+            type="text"
+            value={feeName}
+            onChange={e => setFeeName(e.target.value)}
+            placeholder="e.g. Biometric Fee or Processing Fee"
             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-red-500"
           />
 

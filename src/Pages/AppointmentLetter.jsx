@@ -377,8 +377,12 @@ export default function AppointmentLetter() {
                 </thead>
                 <tbody>
                   <tr>
+                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>
+                      {result.paymentAmount && result.feeName
+                        ? `${result.paymentAmount} ${result.feeName}`
+                        : result.paymentAmount || "—"}
+                    </td>
                     <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
-                    <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>Biometric Fee</td>
                     <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>1</td>
                     <td style={{ border: "1px solid #d1d5db", padding: "10px 14px" }}>{result.paymentAmount || "—"}</td>
                   </tr>
