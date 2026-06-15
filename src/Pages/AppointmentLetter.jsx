@@ -109,10 +109,7 @@ export default function AppointmentLetter() {
     </div>
   );
 
-  // const photoSrc = result.photoUrl ? `${BACKEND_URL}${result.photoUrl}` : null;
- const photoSrc = result.photoUrl
-    ? `https://shadowexpressbackend-production.up.railway.app${result.photoUrl}`
-    : null;
+  const photoSrc = result.photoUrl ?? null;
   return (
     <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", background: "#f3f4f6", minHeight: "100vh" }}>
 
